@@ -24,6 +24,8 @@ import org.xml.sax.SAXException;
 public class Main {
     private static long lastAlertTime = 0;
     private static final long ALERT_INTERVAL = 30000; // 30 sekund v milisekundách
+    private static final long SCREEN_INTERVAL = 80; // ddstup času ve sledováné obrazovky v milisekundách
+
 
     public static void main(String[] args) {
         // Název a cesta k externímu konfiguračnímu souboru
@@ -56,7 +58,7 @@ public class Main {
 
             // Přestávka jednu sekundu
             try {
-                Thread.sleep(80);
+                Thread.sleep(SCREEN_INTERVAL);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
