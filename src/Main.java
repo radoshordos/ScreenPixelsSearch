@@ -1,15 +1,161 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+public class Main {
+    private static long lastAlertTime = 0;
+    private static final long ALERT_INTERVAL = 30000; // 30 sekund v milisekundách
+
+    public static void main(String[] args) {
+        // Název a cesta k externímu konfiguračnímu souboru
+        String configFilePath = "config.xml";
+
+        // Nekonečná smyčka pro pravidelné opakování akce
+        while (true) {
+            // Vyfotí obrazovku
+            BufferedImage screenshot = captureScreen();
+
+            // Načte kombinace barev ze souboru konfigurace
+            List<List<Color>> colorCombinations = readColorCombinationsFromConfig(configFilePath);
+
+            // Kontrola, zda obsahuje dvě kombinace tří pixelů za sebou definované barvy
+            for (List<Color> colors : colorCombinations) {
+                if (containsThreeConsecutivePixelsOfColors(screenshot, colors) && canShowAlert()) {
+                    // Získání pozic pixelů s definovanými barvami
+                    List<String> positions = getPositionsOfPixels(screenshot, colors);
+                    // Vytvoření textové zprávy s pozicemi pixelů
+                    String message = "Nalezena kombinace tří pixelů za sebou v definovaných barvách na pozicích:\n";
+                    for (String position : positions) {
+                        message += position + "\n";
+                    }
+                    // Zobrazení vyskakovacího okna s textem
+                    JOptionPane.showMessageDialog(null, message);
+                    lastAlertTime = System.currentTimeMillis(); // Aktualizace času posledního zobrazení alertu
+                    break;
+                }
+            }
+
+            // Přestávka jednu sekundu
+            try {
+                Thread.sleep(80);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public static BufferedImage captureScreen() {
+        try {
+            // Získání velikosti obrazovky
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            Rectangle screenRectangle = new Rectangle(screenSize);
+
+            // Vytvoření instance třídy Robot pro snímání obrazovky
+            Robot robot = new Robot();
+            return robot.createScreenCapture(screenRectangle);
+        } catch (AWTException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<List<Color>> readColorCombinationsFromConfig(String filePath) {
+        List<List<Color>> colorCombinations = new ArrayList<>();
+
+        try {
+            // Vytvoření parseru XML
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            // Načtení XML souboru
+            Document document = builder.parse(new File(filePath));
+
+            // Získání všech prvků "combination" ze souboru
+            NodeList combinationNodes = document.getElementsByTagName("combination");
+            for (int i = 0; i < combinationNodes.getLength(); i++) {
+                Element combinationElement = (Element) combinationNodes.item(i);
+                // Vytvoření nové kombinace
+                List<Color> colors = new ArrayList<>();
+                // Získání všech prvků "color" uvnitř kombinace
+                NodeList colorNodes = combinationElement.getElementsByTagName("color");
+                for (int j = 0; j < colorNodes.getLength(); j++) {
+                    Element colorElement = (Element) colorNodes.item(j);
+                    // Převedení hodnot RGB na barvu a přidání do kombinace
+                    int red = Integer.parseInt(colorElement.getAttribute("red"));
+                    int green = Integer.parseInt(colorElement.getAttribute("green"));
+                    int blue = Integer.parseInt(colorElement.getAttribute("blue"));
+                    Color color = new Color(red, green, blue);
+                    colors.add(color);
+                }
+                // Přidání kombinace do seznamu kombinací
+                colorCombinations.add(colors);
+            }
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return colorCombinations;
+    }
+
+    public static boolean containsThreeConsecutivePixelsOfColors(BufferedImage image, List<Color> colors) {
+        // Procházení každého pixelu snímku kromě prvního a posledního řádku a sloupce
+        for (int x = 1; x < image.getWidth() - 1; x++) {
+            for (int y = 1; y < image.getHeight() - 1; y++) {
+                // Získání barev sousedních pixelů
+                Color currentPixel = new Color(image.getRGB(x, y));
+                Color leftPixel = new Color(image.getRGB(x - 1, y));
+                Color rightPixel = new Color(image.getRGB(x + 1, y));
+
+                // Kontrola, zda jsou tři sousední pixely v definovaných barvách
+                if (colors.contains(currentPixel) && colors.contains(leftPixel) && colors.contains(rightPixel)) {
+                    return true; // Pokud jsou tři pixely za sebou v definovaných barvách, vrátíme true
+                }
+            }
+        }
+
+        return false; // Pokud není nalezeno tři pixely za sebou v definovaných barvách, vrátíme false
+    }
+
+    public static List<String> getPositionsOfPixels(BufferedImage image, List<Color> colors) {
+        List<String> positions = new ArrayList<>();
+
+        // Procházení každého pixelu snímku
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++) {
+                // Získání barvy pixelu
+                Color pixelColor = new Color(image.getRGB(x, y));
+                // Pokud je barva pixelu jedna z definovaných barev, přidejme jeho pozici do seznamu
+                if (colors.contains(pixelColor)) {
+                    positions.add("(" + x + ", " + y + ")");
+                    break;
+                }
+            }
+        }
+
+        return positions;
+    }
+
+    public static boolean canShowAlert() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime - lastAlertTime >= ALERT_INTERVAL; // Vrátíme true, pokud uplynulo více než ALERT_INTERVAL od posledního zobrazení alertu
     }
 }
