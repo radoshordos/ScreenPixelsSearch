@@ -78,6 +78,7 @@ public class Main {
         }
     }
 
+
     public static List<List<Color>> readColorCombinationsFromConfig(String filePath) {
         List<List<Color>> colorCombinations = new ArrayList<>();
 
@@ -159,3 +160,4 @@ public class Main {
         return currentTime - lastAlertTime >= ALERT_INTERVAL; // Vrátíme true, pokud uplynulo více než ALERT_INTERVAL od posledního zobrazení alertu
     }
 }
+

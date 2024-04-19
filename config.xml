@@ -1,5 +1,17 @@
 <config>
-    <color red="255" green="0" blue="0" />
-    <color red="0" green="255" blue="0" />
-    <color red="0" green="0" blue="255" />
+    <combination>
+        <color red="78" green="33" blue="96"/>
+        <color red="73" green="29" blue="93"/>
+        <color red="184" green="116" blue="161"/>
+    </combination>
+    <combination>
+        <color red="69" green="32" blue="90"/>
+        <color red="78" green="35" blue="103"/>
+        <color red="78" green="35" blue="103"/>
+    </combination>
+    <combination>
+        <color red="86" green="45" blue="92"/>
+        <color red="69" green="32" blue="90"/>
+        <color red="78" green="35" blue="103"/>
+    </combination>
 </config>
