@@ -1,5 +1,6 @@
 ### IntelliJ IDEA ###
 out/
+snapshots/*.png
 !**/src/main/**/out/
 !**/src/test/**/out/
 

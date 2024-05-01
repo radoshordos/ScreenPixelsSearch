@@ -21,15 +21,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+
+
+
 public class Main {
-    private static long lastAlertTime = 0;
-    private static final long ALERT_INTERVAL = 30000; // 30 sekund v milisekundách
-    private static final long SCREEN_INTERVAL = 80; // ddstup času ve sledováné obrazovky v milisekundách
+    private static long lastAlertTime = 0L;
+    private static final long ALERT_INTERVAL = 30000L;
+    private static final long SCREEN_INTERVAL = 50L;
+    private static final long SNAPSHOT_INTERVAL = 30000L; // 5 minut v milisekundách
+    private static final String SNAPSHOT_DIRECTORY = "snapshots/";
 
 
     public static void main(String[] args) {
         // Název a cesta k externímu konfiguračnímu souboru
         String configFilePath = "config.xml";
+        startSnapshotTimer(); // Spuštění časovače pro ukládání snímků
 
         // Nekonečná smyčka pro pravidelné opakování akce
         while (true) {
@@ -50,7 +56,9 @@ public class Main {
                         message += position + "\n";
                     }
                     // Zobrazení vyskakovacího okna s textem
+                    System.out.println(message);
                     JOptionPane.showMessageDialog(null, message);
+
                     lastAlertTime = System.currentTimeMillis(); // Aktualizace času posledního zobrazení alertu
                     break;
                 }
@@ -160,6 +168,28 @@ public class Main {
     public static boolean canShowAlert() {
         long currentTime = System.currentTimeMillis();
         return currentTime - lastAlertTime >= ALERT_INTERVAL; // Vrátíme true, pokud uplynulo více než ALERT_INTERVAL od posledního zobrazení alertu
+    }
+
+    public static void startSnapshotTimer() {
+        java.util.Timer timer = new java.util.Timer();
+        timer.scheduleAtFixedRate(new java.util.TimerTask() {
+            @Override
+            public void run() {
+                saveSnapshot(); // Metoda pro uložení snímku
+            }
+        }, SNAPSHOT_INTERVAL, SNAPSHOT_INTERVAL); // Interval 10 minut
+    }
+
+    public static void saveSnapshot() {
+        try {
+            String fileName = "snapshot_" + System.currentTimeMillis() + ".png"; // Název souboru se časovým razítkem
+            File file = new File(SNAPSHOT_DIRECTORY + fileName);
+            BufferedImage screenshot = captureScreen();
+            ImageIO.write(screenshot, "png", file); // Uložení snímku jako PNG
+            System.out.println("Snapshot uložen do: " + file.getAbsolutePath()); // Vypsání cesty k uloženému souboru do konzole
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 
