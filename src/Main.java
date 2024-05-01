@@ -28,7 +28,7 @@ public class Main {
     private static long lastAlertTime = 0L;
     private static final long ALERT_INTERVAL = 30000L;
     private static final long SCREEN_INTERVAL = 50L;
-    private static final long SNAPSHOT_INTERVAL = 30000L; // 5 minut v milisekundách
+    private static final long SNAPSHOT_INTERVAL = 10000L;
     private static final String SNAPSHOT_DIRECTORY = "snapshots/";
 
 
@@ -56,7 +56,7 @@ public class Main {
                         message += position + "\n";
                     }
                     // Zobrazení vyskakovacího okna s textem
-                    System.out.println(message);
+                    System.out.printf("\033[1;33m%s\033[0m%n", message);
                     JOptionPane.showMessageDialog(null, message);
 
                     lastAlertTime = System.currentTimeMillis(); // Aktualizace času posledního zobrazení alertu

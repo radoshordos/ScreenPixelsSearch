@@ -1,17 +1,17 @@
 <config>
     <combination>
-        <color red="78" green="33" blue="96"/>
+        <color red="164" green="107" blue="155"/>
+        <color red="169" green="114" blue="161"/>
+        <color red="164" green="109" blue="157"/>
+    </combination>
+    <combination>
+        <color red="83" green="37" blue="101"/>
+        <color red="72" green="27" blue="91"/>
+        <color red="51" green="16" blue="63"/>
+    </combination>
+    <combination>
         <color red="73" green="29" blue="93"/>
-        <color red="184" green="116" blue="161"/>
-    </combination>
-    <combination>
-        <color red="69" green="32" blue="90"/>
-        <color red="78" green="35" blue="103"/>
-        <color red="78" green="35" blue="103"/>
-    </combination>
-    <combination>
-        <color red="86" green="45" blue="92"/>
-        <color red="69" green="32" blue="90"/>
-        <color red="78" green="35" blue="103"/>
+        <color red="109" green="52" blue="110"/>
+        <color red="189" green="120" blue="165"/>
     </combination>
 </config>
